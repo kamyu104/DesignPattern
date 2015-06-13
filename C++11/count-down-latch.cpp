@@ -27,7 +27,7 @@ class CountDownLatch {
     explicit CountDownLatch(int count) : count_(count) {}
 
     void countDown() {
-        unique_lock<mutex> lock{mtx_};
+        lock_guard<mutex> lock{mtx_};
         --count_;
         if (count_ == 0) {
             cond_.notify_all();  // Notify all of the waiting threads.
