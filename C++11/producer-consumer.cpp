@@ -26,31 +26,31 @@ template<typename T>
 class SyncQueue {
  public:
     void put(const T& val) {
-        unique_lock<mutex> lock{mtx};
+        unique_lock<mutex> lock{mtx_};
         // If the condition is not met,
         // wait until the thread is notified,
         // the mutex is acquirable, and the condition is met.
-        cond.wait(lock, [this]() { return q.size() != q_size; });
-        q.emplace(val);
-        cond.notify_all();  // Notify all of the waiting threads.
+        cond_.wait(lock, [this]() { return q_.size() != q_size_; });
+        q_.emplace(val);
+        cond_.notify_all();  // Notify all of the waiting threads.
     }  // Unlock the mutex.
 
     void get(T *val) {
-        unique_lock<mutex> lock{mtx};
+        unique_lock<mutex> lock{mtx_};
         // If the condition is not met,
         // wait until the thread is notified,
         // the mutex is acquirable, and the condition is met.
-        cond.wait(lock, [this]() { return !q.empty(); });
-        *val = q.front();
-        q.pop();
-        cond.notify_all();  // Notify all of the waiting threads.
+        cond_.wait(lock, [this]() { return !q_.empty(); });
+        *val = q_.front();
+        q_.pop();
+        cond_.notify_all();  // Notify all of the waiting threads.
     }  // Unlock the mutex.
 
  private:
-    mutex mtx;
-    condition_variable cond;
-    queue<T> q;
-    const unsigned int q_size = 5;
+    mutex mtx_;
+    condition_variable cond_;
+    queue<T> q_;
+    const unsigned int q_size_ = 5;
 };
 
 class Printer {

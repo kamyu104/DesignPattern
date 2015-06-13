@@ -52,21 +52,20 @@ template<typename T>
 class SyncQueue {
  public:
     void put(const T& val) {
-        unique_lock<mutex> lock{mtx};
-        q.emplace(val);
+        unique_lock<mutex> lock{mtx_};
+        q_.emplace(val);
     }  // Unlock the mutex.
 
     void get(T *val) {
-        unique_lock<mutex> lock{mtx};
-        *val = q.front();
-        q.pop();
+        unique_lock<mutex> lock{mtx_};
+        *val = q_.front();
+        q_.pop();
     }  // Unlock the mutex.
 
  private:
-    mutex mtx;
-    condition_variable cond;
-    queue<T> q;
-    const unsigned int q_size = 5;
+    mutex mtx_;
+    queue<T> q_;
+    const unsigned int q_size_ = 5;
 };
 
 class Printer {
