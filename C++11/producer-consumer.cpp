@@ -55,7 +55,7 @@ class Printer {
  public:
     static void print(const string& s, const int& i) {
         static mutex mtx;
-        unique_lock<mutex> lock(mtx);
+        lock_guard<mutex> lock(mtx);
         cout << s << i << endl;
     }
 };
