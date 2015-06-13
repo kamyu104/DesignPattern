@@ -26,6 +26,10 @@ class CountDownLatch {
  public:
     explicit CountDownLatch(int count) : count_(count) {}
 
+    CountDownLatch(const CountDownLatch&) = delete;
+
+    CountDownLatch& operator=(const CountDownLatch&) = delete;
+
     void countDown() {
         lock_guard<mutex> lock{mtx_};
         --count_;
