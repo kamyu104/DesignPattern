@@ -60,6 +60,11 @@ class Printer {
         lock_guard<mutex> lock(mtx);
         cout << s << i << endl;
     }
+
+    Printer() = delete;
+    ~Printer() = delete;
+    Printer(const Printer&) = delete;
+    Printer& operator=(const Printer&) = delete;
 };
 
 class Producer {
