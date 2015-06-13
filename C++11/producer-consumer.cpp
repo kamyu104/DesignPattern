@@ -16,50 +16,42 @@ using std::condition_variable;
 using std::chrono::milliseconds;
 using std::this_thread::sleep_for;
 
-class Buffer {
+template<typename T>
+class SyncQueue {
 public:
-    Buffer() {}
-    void add(int num) {
-        {
-            unique_lock<mutex> lock(mu);
-            cond.wait(lock, [this]() { return buffer_.size() != size_; });
-            buffer_.emplace(num);
-        }
-        // Unlocking is done before notifying, to avoid waking up
-        // the waiting thread only to block again. 
-        cond.notify_all();
+    void put(const T& val) {
+        unique_lock<mutex> lock{mtx};
+        cond.wait(lock, [this]() { return q.size() != q_size; });
+        q.emplace(val);
+        cond.notify_one();
     }
-    int remove() {
-        int back;
-        {
-            unique_lock<mutex> lock(mu);
-            cond.wait(lock, [this]() { return buffer_.size() != 0; });
-            back = buffer_.front();
-            buffer_.pop();
-        }
-        // Unlocking is done before notifying, to avoid waking up
-        // the waiting thread only to block again. 
-        cond.notify_all();
-        return back;
+    
+    void get(T& val) {
+        unique_lock<mutex> lock{mtx};
+        cond.wait(lock, [this]() { return !q.empty(); });
+        val = q.front();
+        q.pop();
+        cond.notify_one();
     }
+    
 private:
-    mutex mu;
+    mutex mtx;
     condition_variable cond;
-    queue<int> buffer_;
-    const unsigned int size_ = 5;
+    queue<T> q;
+    const unsigned int q_size = 5;
 };
 
 class Producer {
 public:
-    Producer(Buffer& buffer, mutex& cout_mu) :
-             buffer_(buffer), cout_mu_(cout_mu) {}
+    Producer(SyncQueue<int>& q, mutex& cout_mtx) :
+             q_(q), cout_mtx_(cout_mtx) {}
     
     void run() {
         for (int i = 0; i < 100; ++i) {
             const int num = i;
-            buffer_.add(i);
+            q_.put(num);
             {
-                lock_guard<mutex> lock(cout_mu_);
+                lock_guard<mutex> lock(cout_mtx_);
                 cout << "Produced: " << num << endl;
             }
             sleep_for(milliseconds(50));
@@ -67,18 +59,19 @@ public:
     }
 
 private:
-    Buffer& buffer_;
-    mutex& cout_mu_;
+    SyncQueue<int>& q_;
+    mutex& cout_mtx_;
 };
 
 class Consumer {
 public:
-    Consumer(Buffer& buffer, mutex& cout_mu) : buffer_(buffer), cout_mu_(cout_mu) {}
+    Consumer(SyncQueue<int>& q, mutex& cout_mtx) : q_(q), cout_mtx_(cout_mtx) {}
     void run() {
         for (int i = 0; i < 100; ++i) {
-            int num = buffer_.remove();
+            int num;
+            q_.get(num);
             {
-                lock_guard<mutex> lock(cout_mu_);
+                lock_guard<mutex> lock(cout_mtx_);
                 cout << "Consumed: " << num << endl;
             }
             sleep_for(milliseconds(500));
@@ -86,18 +79,18 @@ public:
     }
 
 private:
-    Buffer& buffer_;
-    mutex& cout_mu_;
+    SyncQueue<int>& q_;
+    mutex& cout_mtx_;
 };
 
 int main() {
-    Buffer b;
-    mutex cout_mu;
-    Producer p(b, cout_mu);
-    Consumer c(b, cout_mu);
+    SyncQueue<int> q;
+    mutex cout_mtx;
+    Producer p{q, cout_mtx};
+    Consumer c{q, cout_mtx};
 
-    thread producer_thread(&Producer::run, &p);
-    thread consumer_thread(&Consumer::run, &c);
+    thread producer_thread{&Producer::run, &p};
+    thread consumer_thread{&Consumer::run, &c};
 
     producer_thread.join();
     consumer_thread.join();
