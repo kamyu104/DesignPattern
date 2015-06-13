@@ -1,6 +1,7 @@
 // Copyright (c) 2015 kamyu. All rights reserved.
 
 #include <iostream>
+#include <vector>
 #include <queue>
 #include <string>
 #include <thread>
@@ -10,6 +11,7 @@
 
 using std::cout;
 using std::endl;
+using std::vector;
 using std::queue;
 using std::string;
 using std::thread;
@@ -30,7 +32,7 @@ class SyncQueue {
         // the mutex is acquirable, and the condition is met.
         cond.wait(lock, [this]() { return q.size() != q_size; });
         q.emplace(val);
-        cond.notify_one();  // Notify one of the waiting thread.
+        cond.notify_all();  // Notify all of the waiting threads.
     }  // Unlock the mutex.
 
     void get(T *val) {
@@ -41,7 +43,7 @@ class SyncQueue {
         cond.wait(lock, [this]() { return !q.empty(); });
         *val = q.front();
         q.pop();
-        cond.notify_one();  // Notify one of the waiting thread.
+        cond.notify_all();  // Notify all of the waiting threads.
     }  // Unlock the mutex.
 
  private:
@@ -65,11 +67,11 @@ class Producer {
     explicit Producer(SyncQueue<int> *q) : q_(*q) {}
 
     void run() {
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {
             const int num = i;
             q_.put(num);
             Printer::print("Produced: ", num);
-            sleep_for(milliseconds(50));
+            sleep_for(milliseconds(150));
         }
     }
 
@@ -80,13 +82,13 @@ class Producer {
 class Consumer {
  public:
     explicit Consumer(SyncQueue<int> *q) : q_(*q) {}
-    
+
     void run() {
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {
             int num;
             q_.get(&num);
             Printer::print("Consumed: ", num);
-            sleep_for(milliseconds(500));
+            sleep_for(milliseconds(50));
         }
     }
 
@@ -96,14 +98,29 @@ class Consumer {
 
 int main() {
     SyncQueue<int> q;
-    Producer p{&q};
-    Consumer c{&q};
 
-    thread producer_thread{&Producer::run, &p};
-    thread consumer_thread{&Consumer::run, &c};
+    // Create producers.
+    vector<Producer> producers(10, Producer{&q});
+    vector<thread> producer_threads;
+    for (int i = 0; i < 10; ++i) {
+        producer_threads.emplace_back(&Producer::run, &producers[i]);
+    }
 
-    producer_thread.join();
-    consumer_thread.join();
+    // Create consumers.
+    vector<Consumer> consumers(10, Consumer{&q});
+    vector<thread> consumer_threads;
+    for (int i = 0; i < 10; ++i) {
+        consumer_threads.emplace_back(&Consumer::run, &consumers[i]);
+    }
+
+    // Wait until producers and consumers finish.
+    for (auto& thrd : producer_threads) {
+        thrd.join();
+    }
+    for (auto& thrd : consumer_threads) {
+        thrd.join();
+    }
+
 
     return 0;
 }
