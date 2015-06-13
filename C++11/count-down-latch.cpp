@@ -25,9 +25,7 @@ using std::this_thread::sleep_for;
 class CountDownLatch {
  public:
     explicit CountDownLatch(int count) : count_(count) {}
-
     CountDownLatch(const CountDownLatch&) = delete;
-
     CountDownLatch& operator=(const CountDownLatch&) = delete;
 
     void countDown() {
