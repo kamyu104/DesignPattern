@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <queue>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -7,12 +7,11 @@
 
 using std::cout;
 using std::endl;
-using std::vector;
+using std::queue;
 using std::thread;
 using std::mutex;
 using std::unique_lock;
 using std::condition_variable;
-using std::rand;
 using std::chrono::milliseconds;
 using std::this_thread::sleep_for;
 
@@ -23,24 +22,26 @@ public:
         {
             unique_lock<mutex> locker(mu);
             cond.wait(locker, [this]() { return buffer_.size() != size_; });
-            buffer_.emplace_back(num);
+            buffer_.emplace(num);
         }
         cond.notify_all();
     }
     int remove() {
+        int back;
         {
             unique_lock<mutex> locker(mu);
             cond.wait(locker, [this]() { return buffer_.size() != 0; });
-            int back = buffer_.back();
-            buffer_.pop_back();
+            back = buffer_.front();
+            buffer_.pop();
         }
         cond.notify_all();
+        return back;
     }
 private:
     mutex mu;
     condition_variable cond;
-    vector<int> buffer_;
-    const unsigned int size_ = 10;
+    queue<int> buffer_;
+    const unsigned int size_ = 5;
 };
 
 class Producer {
@@ -49,11 +50,13 @@ public:
              buffer_(buffer), cout_mu_(cout_mu) {}
     
     void run() {
-        while (true) {
-            int num = rand() % 100;
-            buffer_.add(num);
-            unique_lock<mutex> locker(cout_mu_);
-            cout << "Produced: " << num << endl;
+        for (int i = 0; i < 100; ++i) {
+            const int num = i;
+            buffer_.add(i);
+            {
+                unique_lock<mutex> locker(cout_mu_);
+                cout << "Produced: " << num << endl;
+            }
             sleep_for(milliseconds(50));
         }
     }
@@ -67,11 +70,13 @@ class Consumer {
 public:
     Consumer(Buffer& buffer, mutex& cout_mu) : buffer_(buffer), cout_mu_(cout_mu) {}
     void run() {
-        while (true) {
+        for (int i = 0; i < 100; ++i) {
             int num = buffer_.remove();
-            unique_lock<mutex> locker(cout_mu_);
-            cout << "Consumed: " << num << endl;
-            sleep_for(milliseconds(50));
+            {
+                unique_lock<mutex> locker(cout_mu_);
+                cout << "Consumed: " << num << endl;
+            }
+            sleep_for(milliseconds(500));
         }
     }
 
