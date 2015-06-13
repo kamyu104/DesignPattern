@@ -1,6 +1,8 @@
 # DesignPattern
 
-Classic C++ / C++ 11 / Boost implementation of design patterns.
+Classic C++ / C++ 11 / Boost implementations of design patterns.
+
+--
 
 * [GoF](https://github.com/kamyu104/DesignPattern#gof)
 * [POSA](https://github.com/kamyu104/DesignPattern#posa)
