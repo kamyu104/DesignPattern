@@ -20,23 +20,21 @@ class Buffer {
 public:
     Buffer() {}
     void add(int num) {
-        while (true) {
+        {
             unique_lock<mutex> locker(mu);
             cond.wait(locker, [this]() { return buffer_.size() != size_; });
             buffer_.emplace_back(num);
-            cond.notify_all();
-            return;
         }
+        cond.notify_all();
     }
     int remove() {
-        while (true) {
+        {
             unique_lock<mutex> locker(mu);
             cond.wait(locker, [this]() { return buffer_.size() != 0; });
             int back = buffer_.back();
-            buffer_.pop_back(); 
-            cond.notify_all();
-            return back;
+            buffer_.pop_back();
         }
+        cond.notify_all();
     }
 private:
     mutex mu;
