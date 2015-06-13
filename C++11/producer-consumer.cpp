@@ -22,7 +22,7 @@ public:
     void add(int num) {
         while (true) {
             unique_lock<mutex> locker(mu);
-            cond.wait(locker, [this](){return buffer_.size() != size_;});
+            cond.wait(locker, [this]() { return buffer_.size() != size_; });
             buffer_.emplace_back(num);
             cond.notify_all();
             return;
@@ -31,7 +31,7 @@ public:
     int remove() {
         while (true) {
             unique_lock<mutex> locker(mu);
-            cond.wait(locker, [this](){return buffer_.size() != 0;});
+            cond.wait(locker, [this]() { return buffer_.size() != 0; });
             int back = buffer_.back();
             buffer_.pop_back(); 
             cond.notify_all();
