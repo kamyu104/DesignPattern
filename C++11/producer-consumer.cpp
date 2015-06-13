@@ -96,7 +96,6 @@ class Consumer {
 
 int main() {
     SyncQueue<int> q;
-    mutex cout_mtx;
     Producer p{&q};
     Consumer c{&q};
 
