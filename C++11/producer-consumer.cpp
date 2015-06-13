@@ -80,6 +80,7 @@ class Producer {
 class Consumer {
  public:
     explicit Consumer(SyncQueue<int> *q) : q_(*q) {}
+    
     void run() {
         for (int i = 0; i < 100; ++i) {
             int num;
