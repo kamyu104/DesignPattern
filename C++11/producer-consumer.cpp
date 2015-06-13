@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <queue>
+#include <string>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -10,6 +11,7 @@
 using std::cout;
 using std::endl;
 using std::queue;
+using std::string;
 using std::thread;
 using std::mutex;
 using std::unique_lock;
@@ -49,54 +51,53 @@ class SyncQueue {
     const unsigned int q_size = 5;
 };
 
+class Printer {
+ public:
+    static void print(const string& s, const int& i) {
+        static mutex mtx;
+        unique_lock<mutex> lock(mtx);
+        cout << s << i <<endl;
+    }
+};
+
 class Producer {
  public:
-    Producer(SyncQueue<int> *q, mutex *cout_mtx) :
-             q_(*q), cout_mtx_(*cout_mtx) {}
+    explicit Producer(SyncQueue<int> *q) : q_(*q) {}
 
     void run() {
         for (int i = 0; i < 100; ++i) {
             const int num = i;
             q_.put(num);
-            {
-                lock_guard<mutex> lock(cout_mtx_);
-                cout << "Produced: " << num << endl;
-            }
+            Printer::print("Produced: ", num);
             sleep_for(milliseconds(50));
         }
     }
 
  private:
     SyncQueue<int>& q_;
-    mutex& cout_mtx_;
 };
 
 class Consumer {
  public:
-    Consumer(SyncQueue<int> *q, mutex *cout_mtx) :
-             q_(*q), cout_mtx_(*cout_mtx) {}
+    explicit Consumer(SyncQueue<int> *q) : q_(*q) {}
     void run() {
         for (int i = 0; i < 100; ++i) {
             int num;
             q_.get(&num);
-            {
-                lock_guard<mutex> lock(cout_mtx_);
-                cout << "Consumed: " << num << endl;
-            }
+            Printer::print("Consumed: ", num);
             sleep_for(milliseconds(500));
         }
     }
 
  private:
     SyncQueue<int>& q_;
-    mutex& cout_mtx_;
 };
 
 int main() {
     SyncQueue<int> q;
     mutex cout_mtx;
-    Producer p{&q, &cout_mtx};
-    Consumer c{&q, &cout_mtx};
+    Producer p{&q};
+    Consumer c{&q};
 
     thread producer_thread{&Producer::run, &p};
     thread consumer_thread{&Consumer::run, &c};
