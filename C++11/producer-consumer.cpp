@@ -102,15 +102,15 @@ int main() {
     // Create producers.
     vector<Producer> producers(10, Producer{&q});
     vector<thread> producer_threads;
-    for (int i = 0; i < 10; ++i) {
-        producer_threads.emplace_back(&Producer::run, &producers[i]);
+    for (auto& producer : producers) {
+        producer_threads.emplace_back(&Producer::run, &producer);
     }
 
     // Create consumers.
     vector<Consumer> consumers(10, Consumer{&q});
     vector<thread> consumer_threads;
-    for (int i = 0; i < 10; ++i) {
-        consumer_threads.emplace_back(&Consumer::run, &consumers[i]);
+    for (auto& consumer : consumers) {
+        consumer_threads.emplace_back(&Consumer::run, &consumer);
     }
 
     // Wait until producers and consumers finish.
@@ -120,7 +120,6 @@ int main() {
     for (auto& thrd : consumer_threads) {
         thrd.join();
     }
-
 
     return 0;
 }
