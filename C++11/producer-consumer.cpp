@@ -11,6 +11,7 @@ using std::queue;
 using std::thread;
 using std::mutex;
 using std::unique_lock;
+using std::lock_guard;
 using std::condition_variable;
 using std::chrono::milliseconds;
 using std::this_thread::sleep_for;
@@ -20,20 +21,24 @@ public:
     Buffer() {}
     void add(int num) {
         {
-            unique_lock<mutex> locker(mu);
-            cond.wait(locker, [this]() { return buffer_.size() != size_; });
+            unique_lock<mutex> lock(mu);
+            cond.wait(lock, [this]() { return buffer_.size() != size_; });
             buffer_.emplace(num);
         }
+        // Unlocking is done before notifying, to avoid waking up
+        // the waiting thread only to block again. 
         cond.notify_all();
     }
     int remove() {
         int back;
         {
-            unique_lock<mutex> locker(mu);
-            cond.wait(locker, [this]() { return buffer_.size() != 0; });
+            unique_lock<mutex> lock(mu);
+            cond.wait(lock, [this]() { return buffer_.size() != 0; });
             back = buffer_.front();
             buffer_.pop();
         }
+        // Unlocking is done before notifying, to avoid waking up
+        // the waiting thread only to block again. 
         cond.notify_all();
         return back;
     }
@@ -54,7 +59,7 @@ public:
             const int num = i;
             buffer_.add(i);
             {
-                unique_lock<mutex> locker(cout_mu_);
+                lock_guard<mutex> lock(cout_mu_);
                 cout << "Produced: " << num << endl;
             }
             sleep_for(milliseconds(50));
@@ -73,7 +78,7 @@ public:
         for (int i = 0; i < 100; ++i) {
             int num = buffer_.remove();
             {
-                unique_lock<mutex> locker(cout_mu_);
+                lock_guard<mutex> lock(cout_mu_);
                 cout << "Consumed: " << num << endl;
             }
             sleep_for(milliseconds(500));
