@@ -1,4 +1,4 @@
-# DesignPattern
+# Design Patterns
 
 Classic C++ / C++ 11 / Boost implementations of design patterns.
 
