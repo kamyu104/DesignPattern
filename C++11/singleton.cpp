@@ -11,9 +11,6 @@ using std::string;
 template<typename T>
 class Singleton {
  public:
-    /**
-     * @return: The same instance of this class every time
-     */
     static T& instance() {
         // C++ 11 thread-safe local-static-initialization.
         static T *val = new T();
