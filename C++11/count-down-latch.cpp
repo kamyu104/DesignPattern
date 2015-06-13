@@ -91,7 +91,7 @@ class Producer {
     explicit Producer(SyncQueue<int> *q) : q_(*q) {}
 
     void run(CountDownLatch *count_down_latch) {
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < repeated_count_; ++i) {
             const int num = i;
             q_.put(num);
             Printer::print("Produced: ", num);
@@ -103,6 +103,7 @@ class Producer {
 
  private:
     SyncQueue<int>& q_;
+    const int repeated_count_ = 10;
 };
 
 class Consumer {
@@ -112,7 +113,7 @@ class Consumer {
     void run(CountDownLatch *count_down_latch) {
         // Wait until all the producers finish.
         count_down_latch->wait();
-        for (int i = 0; i < 10; ++i) {
+        for (int i = 0; i < repeated_count_; ++i) {
             int num;
             q_.get(&num);
             Printer::print("Consumed: ", num);
@@ -122,14 +123,16 @@ class Consumer {
 
  private:
     SyncQueue<int>& q_;
+    const int repeated_count_ = 10;
 };
 
 int main() {
+    const int count = 20;
     SyncQueue<int> q;
-    CountDownLatch count_down_latch(10);
+    CountDownLatch count_down_latch(count);
 
     // Create producers.
-    vector<Producer> producers(10, Producer{&q});
+    vector<Producer> producers(count, Producer{&q});
     vector<thread> producer_threads;
     for (auto& producer : producers) {
         producer_threads.emplace_back(&Producer::run, &producer,
@@ -137,7 +140,7 @@ int main() {
     }
 
     // Create consumers.
-    vector<Consumer> consumers(10, Consumer{&q});
+    vector<Consumer> consumers(count, Consumer{&q});
     vector<thread> consumer_threads;
     for (auto& consumer : consumers) {
         consumer_threads.emplace_back(&Consumer::run, &consumer,
