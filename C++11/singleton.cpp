@@ -21,13 +21,13 @@ class Singleton {
         return *val;
     }
 
+    // Non instanceable.
+    Singleton() = delete;
+    ~Singleton() = delete;
+
     // Noncopyable.
     Singleton(const Singleton&) = delete;
     Singleton& operator=(const Singleton&) = delete;
-
- private:
-    Singleton() {}
-    ~Singleton() {}
 };
 
 int main() {
