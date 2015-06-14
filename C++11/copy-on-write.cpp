@@ -96,17 +96,17 @@ class Request : public enable_shared_from_this<Request> {
     }
 
  private:
-    mutable mutex mtx_;
+    mutable mutex mtx_;  // mutable is due to const method.
     int val_;
     Inventory& inventory_;
 };
 
 void Inventory::printAll() const {
-    RequestListPtr requests = getData();
+    RequestListPtr requests = getData();  // Copy a list.
     cout << "Inventory::printAll()" << endl;
     sleep_for(milliseconds(1000));
     for (auto it = requests->cbegin(); it != requests->cend(); ++it) {
-        (*it)->print();
+        (*it)->print();  // Every request ptr is shared_ptr.
     }
 }
 
