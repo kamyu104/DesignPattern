@@ -39,6 +39,7 @@ class Inventory {
         requests_->insert(req);
     }
 
+    // Copy on write.
     void remove(const RequestPtr& req) {
         lock_guard<mutex> lock(mtx_);
         if (!requests_.unique()) {
@@ -72,19 +73,19 @@ class Request : public enable_shared_from_this<Request> {
         val_ = -1;
     }
 
+    void process() {
+        lock_guard<mutex> lock(mtx_);
+        cout << "process()" << endl;  // 0s in timeline.
+        inventory_.add(shared_from_this());
+        // ...
+    }
+
     void cancel() {
         lock_guard<mutex> lock{mtx_};
         val_ = 1;
         sleep_for(milliseconds(1000));
         cout << "cancel()" << endl;  // 1s in timeline.
         inventory_.remove(shared_from_this());
-    }
-
-    void process() {
-        lock_guard<mutex> lock(mtx_);
-        cout << "process()" << endl;  // 0s in timeline.
-        inventory_.add(shared_from_this());
-        // ...
     }
 
     void print() const {  // 1.5s in timeline.
