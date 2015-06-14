@@ -86,6 +86,7 @@ class Request : public enable_shared_from_this<Request> {
         sleep_for(milliseconds(1000));
         cout << "cancel()" << endl;  // 1s in timeline.
         inventory_.remove(shared_from_this());
+        // ...
     }
 
     void print() const {  // 1.5s in timeline.
