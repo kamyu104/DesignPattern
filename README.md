@@ -13,7 +13,7 @@ Classic C++ / C++ 11 / Boost implementations of design patterns.
 ##GoF
 | # | Title | Solution | Tag | Note |
 |---| ----- | -------- | --- | ---- |
-|1|Singleton| [C++11](./C++11/singleton.cpp) | | |
+|1|Singleton| [C++11](./C++11/singleton.cpp) | | thread-safe |
 
 --
 
@@ -26,7 +26,7 @@ Classic C++ / C++ 11 / Boost implementations of design patterns.
 ##Multithread
 | # | Title | Solution | Tag | Note |
 |---| ----- | -------- | --- | ---- |
-|1|Producer Consumer| [C++11](./C++11/producer-consumer.cpp) | | |
-|2|Count Down Latch| [C++11](./C++11/count-down-latch.cpp) | | |
-|3|Copy on Write| [C++11](./C++11/copy-on-write.cpp) | | |
+|1|Producer Consumer| [C++11](./C++11/producer-consumer.cpp) | | mutex, monitor |
+|2|Count Down Latch| [C++11](./C++11/count-down-latch.cpp) | | mutex, monitor|
+|3|Copy on Write| [C++11](./C++11/copy-on-write.cpp) | | smart-pointer |
 
