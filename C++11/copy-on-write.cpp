@@ -75,7 +75,7 @@ class Request : public enable_shared_from_this<Request> {
 
     void process() {
         lock_guard<mutex> lock(mtx_);
-        cout << "process()" << endl;  // 0s in timeline.
+        cout << "Request::process()" << endl;  // 0s in timeline.
         inventory_.add(shared_from_this());
         // ...
     }
@@ -84,14 +84,14 @@ class Request : public enable_shared_from_this<Request> {
         lock_guard<mutex> lock{mtx_};
         val_ = 1;
         sleep_for(milliseconds(1000));
-        cout << "cancel()" << endl;  // 1s in timeline.
+        cout << "Request::cancel()" << endl;  // 1s in timeline.
         inventory_.remove(shared_from_this());
         // ...
     }
 
     void print() const {  // 1.5s in timeline.
         lock_guard<mutex> lock{mtx_};
-        cout << "Request: " << this << ", val_: " << val_ << endl;
+        cout << "Request::print() " << this << ", val_: " << val_ << endl;
         // ...
     }
 
@@ -103,7 +103,7 @@ class Request : public enable_shared_from_this<Request> {
 
 void Inventory::printAll() const {
     RequestListPtr requests = getData();
-    cout << "printAll()" << endl;
+    cout << "Inventory::printAll()" << endl;
     sleep_for(milliseconds(1000));
     for (auto it = requests->cbegin(); it != requests->cend(); ++it) {
         (*it)->print();
