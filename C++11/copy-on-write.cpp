@@ -61,7 +61,7 @@ class Inventory {
         return requests_;
     }
 
-    mutable mutex mtx_;
+    mutable mutex mtx_;  // mutable is due to const method.
     RequestListPtr requests_;
 };
 
