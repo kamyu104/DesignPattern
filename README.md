@@ -1,6 +1,6 @@
 # Design Patterns
 
-Classic C++ / C++ 11 / Boost implementations of design patterns.
+Classic C++ / C++ 11 / Boost implementations of design patterns / idioms.
 
 --
 
