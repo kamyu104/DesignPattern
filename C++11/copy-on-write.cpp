@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <unordered_set>
-#include <string>
 #include <thread>
 #include <memory>
 #include <mutex>
@@ -12,7 +11,6 @@
 using std::cout;
 using std::endl;
 using std::unordered_set;
-using std::string;
 using std::thread;
 using std::shared_ptr;
 using std::enable_shared_from_this;
