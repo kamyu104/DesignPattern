@@ -34,7 +34,7 @@ class Inventory {
             cout << "Inventory::add() copy on write" << endl;
         }
         assert(requests_.unique());
-        requests_->insert(req);
+        requests_->emplace(req);
     }
 
     // Copy on write.
