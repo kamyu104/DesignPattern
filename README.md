@@ -28,5 +28,5 @@ Classic C++ / C++ 11 / Boost implementations of design patterns / idioms.
 |---| ----- | -------- | --- | ---- |
 |1|Producer Consumer| [C++11](./C++11/producer-consumer.cpp) | | Mutex, Monitor |
 |2|Count Down Latch| [C++11](./C++11/count-down-latch.cpp) | | Mutex, Monitor|
-|3|Copy on Write| [C++11](./C++11/copy-on-write.cpp) | | Smart-Pointer |
+|3|Copy on Write| [C++11](./C++11/copy-on-write.cpp) | | Smart Pointer |
 
