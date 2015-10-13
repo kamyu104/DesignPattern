@@ -1,4 +1,4 @@
-# Design Patterns
+# Design Patterns ![Language](https://img.shields.io/badge/language-C++%2011%20-orange.svg) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/kamyu104/DesignPattern/blob/master/LICENSE.md)
 
 Classic C++ / C++ 11 / Boost implementations of design patterns / idioms.
 
