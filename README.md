@@ -1,6 +1,6 @@
 # Design Patterns ![Language](https://img.shields.io/badge/language-C++%2011-orange.svg) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 
-Classic C++ / C++ 11 / Boost implementations of design patterns / idioms.
+Classic C++ / C++ 11 / Boost implementations of design patterns / idioms in GoF, POSA, and etc.
 
 * [GoF](https://github.com/kamyu104/DesignPattern#gof)
 * [POSA](https://github.com/kamyu104/DesignPattern#posa)
