@@ -20,7 +20,7 @@ using std::chrono::milliseconds;
 using std::this_thread::sleep_for;
 
 class Request;
-typedef shared_ptr<Request> RequestPtr;
+using RequestPtr = shared_ptr<Request>;
 
 class Inventory {
  public:
@@ -51,8 +51,8 @@ class Inventory {
     void printAll() const;
 
  private:
-    typedef unordered_set<RequestPtr> RequestList;
-    typedef shared_ptr<RequestList> RequestListPtr;
+    using RequestList = unordered_set<RequestPtr>;
+    using RequestListPtr = shared_ptr<RequestList>;
 
     RequestListPtr getData() const {  // 0.5s in timeline.
         lock_guard<mutex> lock{mtx_};
